@@ -12,5 +12,13 @@ pyvenv.cfg
 .venv
 pip-selfcheck.json
 
+#pycache
+__pycache__/
+
 #secret
 secrets.csv
+
+data/
+
+loc_data.csv
+

@@ -1,14 +1,7 @@
 #openweathermap python program
 import requests
 import json
-
-def build_request(lat: float, lon: float, secrets: dict[str, str] ) -> str:
-    
-    request_weather:str = "https://api.openweathermap.org/data/2.5/weather?lat=$&lon=$&appid=@"
-
-    request_weather = request_weather.replace("$", str(lat), 1).replace("$", str(lon)).replace("@", str(secrets.get("owm")))
-
-    return request_weather;
+import general_utils as gu 
 # returns tuple[lon,lat]
 def get_coords(location: str, secrets: dict[str, str]) -> tuple[float, float]:
     #break into pieces, format is city_name,country_code,state_code
@@ -50,31 +43,63 @@ def locations_to_coords(locations: list[str], secrets: dict[str,str]):
     for loc in locations:
         coords = get_coords(loc, secrets)
         mappings.update({loc.split(',')[0] + " " + loc.split(',')[1]: coords})
+        
     return mappings
 
+def load_locs():
+    locs: list[str] = []
+    f = open("places.csv", "r")
+    f.readline() #drop first line
+    for s in f:
+        if not "," in s:
+            continue
+        s = s.strip("\n").strip(",")
+        print(s)
+        locs.append(s)
+    return locs
 
-    
+def write_geodata(data: dict[str, tuple[float,float]]) -> bool:
+    f = open("loc_data.csv","w")
+    f.write("location,lon,lat\n")
+    for s in data.keys():
+        
+        csv_line = s
+        tup  = data.get(s)
+        lon:float
+        lat:float
+        if tup == None:
+            print("incorrect value in tuple for " + s)
+            return False
+        else:
+            lat = tup[1]
+            lon = tup[0]
+        csv_line += "," + str(lon) + "," + str(lat)
+        print(csv_line)
+        f.write(csv_line + "\n")
 
-f = open("secrets.csv", "r")
 
-locations = ["Boston,US,MA", "New York City,US,NY","Dublin,IE","Denver,US,CO","London,GB","Portland,US,OR","Dubai,AE","Mumbai,IN","Shanghai,CN", "Miami,US,FL", "Rio,BR", "Montreal,CA", "San Francisco,US,CA"]
+    return False
 
-loc_to_coords: dict;
+def locnames_to_data() -> bool:
+    locations: list[str] = load_locs()
+
+    secrets = gu.read_secrets()
+
+    if secrets.get("owm") == "none":
+        print("api key not properly defined")
+        exit(1)
+
+    coords: dict[str, tuple[float,float]] = locations_to_coords(locations, secrets);
+
+    write_geodata(coords)
+    return True
+
+if __name__ == "__main__":
+    locnames_to_data()
 
 
 
-secrets: dict[str,str] = {"owm": "none"}
 
-#load secrets
-for s in f:
-    s = s.strip("\n")
-    secrets.update({s.split(",")[0]: s.split(",")[1]})
-
-if secrets.get("owm") == "none":
-    print("api key not properly defined")
-    exit(1)
-
-coords: dict[str, tuple[float,float]] = locations_to_coords(locations, secrets);
 
 
 
