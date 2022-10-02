@@ -57,7 +57,7 @@ def locations_to_coords(locations: list[str], secrets: dict[str,str]):
 
 f = open("secrets.csv", "r")
 
-locations = ["Boston,US,MA", "New York City,US,NY","Dublin,IE"]
+locations = ["Boston,US,MA", "New York City,US,NY","Dublin,IE","Denver,US,CO","London,GB","Portland,US,OR","Dubai,AE","Mumbai,IN","Shanghai,CN", "Miami,US,FL", "Rio,BR", "Montreal,CA", "San Francisco,US,CA"]
 
 loc_to_coords: dict;
 
@@ -69,6 +69,10 @@ secrets: dict[str,str] = {"owm": "none"}
 for s in f:
     s = s.strip("\n")
     secrets.update({s.split(",")[0]: s.split(",")[1]})
+
+if secrets.get("owm") == "none":
+    print("api key not properly defined")
+    exit(1)
 
 coords: dict[str, tuple[float,float]] = locations_to_coords(locations, secrets);
 
