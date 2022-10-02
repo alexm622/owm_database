@@ -16,10 +16,7 @@ def build_request(lon: float, lat: float, secrets: dict[str, str] ) -> str:
 
 def get_weather(lon,lat,secrets)->str:
     req = build_request(lon,lat,secrets)
-    print("request: " + req)
     res = requests.get(req).text
-
-    print("response: " + res)
 
     res = json.loads(res)
 
@@ -68,15 +65,16 @@ def write_json_out(data: dict):
     
     
     f.write(str(data).replace("'","\""))
+def loc_to_weather():
+    locs = list_to_dict(load_locdata())
+
+    secrets = gu.read_secrets()
+
+    aw = get_all_weather(locs, secrets)
+
+    write_json_out(aw)
 
 
+if __name__ == "__main__":
+    loc_to_weather()
 
-locs = list_to_dict(load_locdata())
-
-secrets = gu.read_secrets()
-
-aw = get_all_weather(locs, secrets)
-print("printing all weather \n\n")
-print(aw)
-
-write_json_out(aw)

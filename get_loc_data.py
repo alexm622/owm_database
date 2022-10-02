@@ -18,15 +18,11 @@ def get_coords(location: str, secrets: dict[str, str]) -> tuple[float, float]:
         request_geocode = request_geocode.replace("%", "");
 
     request_geocode = request_geocode.replace("$", city_name, 1).replace("$", country_code, 1).replace("$",str(1), 1).replace("@", str(secrets.get("owm")))
-    print(request_geocode.replace(str(secrets.get("owm")), "secret"))
 
     response1 = requests.get(request_geocode)
 
     geocoding: dict = json.loads(response1.text[1: -1])
     geocoding.pop("local_names")
-
-    print("lon: ", str(geocoding.get("lon")))
-    print("lat: ", str(geocoding.get("lat")))
 
     lat: str | None = str(geocoding.get("lat"))
     lon: str | None = str(geocoding.get("lon"))
@@ -53,8 +49,7 @@ def load_locs():
     for s in f:
         if not "," in s:
             continue
-        s = s.strip("\n").strip(",")
-        print(s)
+        s = s.strip("\n").strip(",") 
         locs.append(s)
     return locs
 
