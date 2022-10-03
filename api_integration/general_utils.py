@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 def read_secrets():
     secrets: dict[str,str] = {"owm": "none"}
 
-    f = open("secrets.csv", "r")
+    f = open("../secrets.csv", "r")
     f.readline() #drop first line
 
     #load secrets
