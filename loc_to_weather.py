@@ -1,8 +1,10 @@
 #location data to weather data
+import argparse
 import requests
 import time
 import os
 import json
+from argparse import ArgumentParser, Namespace
 
 import general_utils as gu
 
@@ -65,7 +67,8 @@ def write_json_out(data: dict):
     
     
     f.write(str(data).replace("'","\""))
-def loc_to_weather():
+def loc_to_weather(args:Namespace=argparse.ArgumentParser().parse_args()):
+    if(args.
     locs = list_to_dict(load_locdata())
 
     secrets = gu.read_secrets()
@@ -73,8 +76,6 @@ def loc_to_weather():
     aw = get_all_weather(locs, secrets)
 
     write_json_out(aw)
-
-
 if __name__ == "__main__":
     loc_to_weather()
 
