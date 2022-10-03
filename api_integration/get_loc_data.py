@@ -1,7 +1,12 @@
 #openweathermap python program
+from argparse import Namespace
+import argparse
 import requests
 import json
 import general_utils as gu 
+
+locs_file: str = "places.csv"
+
 # returns tuple[lon,lat]
 def get_coords(location: str, secrets: dict[str, str]) -> tuple[float, float]:
     #break into pieces, format is city_name,country_code,state_code
@@ -43,8 +48,9 @@ def locations_to_coords(locations: list[str], secrets: dict[str,str]):
     return mappings
 
 def load_locs():
+    global locs_file
     locs: list[str] = []
-    f = open("places.csv", "r")
+    f = open(locs_file, "r")
     f.readline() #drop first line
     for s in f:
         if not "," in s:
@@ -75,7 +81,30 @@ def write_geodata(data: dict[str, tuple[float,float]]) -> bool:
 
     return False
 
-def locnames_to_data() -> bool:
+def valid_file(file:str) -> bool:
+    print("validating file")
+    return False
+
+def locnames_to_data(args:Namespace=argparse.ArgumentParser().parse_args()) -> bool:
+    if not (len(vars(args)) == 0):
+        if not args.geocode:
+            print('skipping geocoding')
+            return True
+        if args.LOCS != "":
+            if valid_file(args.LOCS):
+                global locs_file
+                locs_file = args.LOCS
+            else:
+                print("invalid locs file")
+                print("using default (places.csv)")
+
+
+
+
+
+
+    
+
     locations: list[str] = load_locs()
 
     secrets = gu.read_secrets()

@@ -8,6 +8,8 @@ from argparse import ArgumentParser, Namespace
 
 import general_utils as gu
 
+data_file = "loc_data.csv"
+
 def build_request(lon: float, lat: float, secrets: dict[str, str] ) -> str:
     
     request_weather:str = "https://api.openweathermap.org/data/2.5/weather?lat=$&lon=$&appid=@"
@@ -64,11 +66,28 @@ def write_json_out(data: dict):
         if os.path.exists("data/" + filename):
             os.remove("data/" + filename)
     f = open("data/" + filename, "w")
+    f.write(str('data').replace("'","\""))
     
-    
+def validate_file(file:str)-> bool:
+    return True
+
     f.write(str(data).replace("'","\""))
 def loc_to_weather(args:Namespace=argparse.ArgumentParser().parse_args()):
-    if(args.
+    if len(vars(args)) > 0:
+        if args.output_override != "":
+            #override the output
+            print("new output")
+        if args.loc_data != "":
+            if validate_file(args.loc_data):
+                #override input file
+                global data_file
+                data_file = args.loc_data
+                print("overriding")
+            else:
+                print("invalid loc_data file")
+                print("using default value (loc_data.csv)")
+
+
     locs = list_to_dict(load_locdata())
 
     secrets = gu.read_secrets()
@@ -76,6 +95,8 @@ def loc_to_weather(args:Namespace=argparse.ArgumentParser().parse_args()):
     aw = get_all_weather(locs, secrets)
 
     write_json_out(aw)
+
+
 if __name__ == "__main__":
     loc_to_weather()
 
