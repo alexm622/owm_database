@@ -118,11 +118,6 @@ def locnames_to_data(args:Namespace=argparse.ArgumentParser().parse_args()) -> b
     write_geodata(coords)
     return True
 
-if __name__ == "__main__":
-    locnames_to_data()
-
-
-
 
 
 

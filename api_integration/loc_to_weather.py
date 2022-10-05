@@ -97,6 +97,4 @@ def loc_to_weather(args:Namespace=argparse.ArgumentParser().parse_args()):
     write_json_out(aw)
 
 
-if __name__ == "__main__":
-    loc_to_weather()
 
