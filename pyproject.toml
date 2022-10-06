@@ -1,0 +1,15 @@
+[tool.pyright]
+include = [".", "api_integration/**","database_integration/*"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+]
+defineConstant = { DEBUG = true }
+venv = "."
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.10"
+pythonPlatform = "Linux"
+
+
