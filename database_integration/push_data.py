@@ -8,6 +8,9 @@ from constant import INSERT_LOCATION
 
 import mysql.connector as connector
 
+from datac.location import Location
+from datac.mapper import loc_to_datac
+
 connection_url = ""
 connection_uname = ""
 connection_passwd = ""
@@ -57,9 +60,7 @@ def push_location(location_name:str, country_code:str, state_code:str, lon:float
     mydb.commit()
     assert(cursor.lastrowid is not None)
     id:int = cursor.lastrowid
-    
-
-    
+     
     if id == 0:
         print("id was zero")
         q:list[str] = [(location_name)]
@@ -70,6 +71,7 @@ def push_location(location_name:str, country_code:str, state_code:str, lon:float
         id = fetched
 
     print("got id of: " + str(id))
+    cursor.close()
 
     return id
 
@@ -80,11 +82,47 @@ def get_locations():
     result = cursor.fetchall()
     assert(result is not None)
 
+    cursor.close()
     print(result)
     return result
 
-def test():
+def get_weather_type(weather: dict) -> int:
+    id = -1
+    cursor = mydb.cursor()
+    cond_code = weather.get("id")
+    assert(cond_code is not None)
+    cond_code = int(cond_code)
+    name = weather.get("main")
+    assert(name is not None)
+    description = weather.get("description")
+    assert(description is not None)
+    icon = weather.get("icon")
+    assert(icon is not None)
+    input: tuple = (cond_code,name,description,icon)
+    cursor.execute(INSERT_LOCATION, input)
+
+    id = cursor.lastrowid
+    assert(id is not None)
+
+    if id == 0:
+        print("id was zero")
+        q:list = [(cond_code)]
+        cursor.execute("SELECT weather_id from Weather_types where condition_code = %s LIMIT 1",q)
+        fetched = cursor.fetchone()
+        assert(fetched is not None)
+        fetched = int(fetched[0])
+        id = fetched
+    return id
+
+
+
+    
+    
+
+def init():
     load_config()
     connect()
-    push_location("boston","US","MA", 0.0,0.0)
-    get_locations()
+
+def close():
+    global mydb
+    mydb.close()

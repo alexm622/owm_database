@@ -20,7 +20,7 @@ def run():
     ltw.loc_to_weather(args)
 
 def db_test():
-    pd.test()
+    
 
 if __name__ == "__main__":
     #run()
