@@ -11,16 +11,19 @@ def loc_to_datac(tup: tuple) -> Location:
     return Location(tup[0],tup[1],tup[2],tup[3],tup[4],tup[5])
 
 def json_data(json: dict, location_id: int) -> Weather:
-    weather_type = pd.get_weather_type(json.get("weather"))
+    w_type = json.get("weather")
+    assert(w_type is not None)
+    weather_type = pd.get_weather_type(w_type[0])
     temperature_id = pd.get_temp_id(json.get("main"), location_id)
     wind_id = pd.get_wind_id(json.get("wind"), location_id)
     visibility = json.get("visibility")
     clouds = json.get("clouds")
-    assert(clouds is not None and clouds is dict)
+    assert(clouds is not None)
+    print("clouds: ", clouds)
     clouds = clouds.get("all")
     assert(clouds is not None)
     precipitation_id: int | None
-    if(json.get("rain") is not None and json.get("snow") is not None):
+    if(json.get("rain") is None and json.get("snow") is None):
         print("no precipitation")
         precipitation_id = None
     else:

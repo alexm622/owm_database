@@ -1,15 +1,17 @@
 #push data to sql server
 
+from datetime import datetime
 import json
 
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.connection_cext import CMySQLConnection
-from constant import INSERT_LOC_DATA, INSERT_LOCATION, INSERT_PRECIP, INSERT_TEMP, INSERT_WIND
+from constant import INSERT_LOC_DATA, INSERT_LOCATION, INSERT_PRECIP, INSERT_TEMP, INSERT_WEATHER, INSERT_WEATHER_TYPES, INSERT_WIND
 
 import mysql.connector as connector
 
 from datac.location import Location
 from datac.mapper import loc_to_datac
+from datac.weather import Weather
 
 connection_url = ""
 connection_uname = ""
@@ -36,9 +38,7 @@ def load_config():
         exit(1)
         
 
-#TODO push all the gathered weather data
-def push():
-    print("push data")
+    
 
 #connect to the database
 def connect():
@@ -50,6 +50,15 @@ def connect():
     assert(mydb is not None)
     print(mydb)
 
+#TODO push all the gathered weather data
+def push(weather: Weather):
+    cursor = mydb.cursor()
+    cursor.execute(INSERT_WEATHER, weather.tup)
+    id = cursor.lastrowid
+    assert(id is not None)
+    print("Weather: (", weather, ") inserted at ", id)
+    cursor.close()
+    commit()
 #push the location to the database
 def push_location(location_name:str, country_code:str, state_code:str, lon:float, lat:float) -> int:
     global mydb
@@ -105,10 +114,12 @@ def get_weather_type(weather: dict| None) -> int:
     assert(name is not None)
     description = weather.get("description")
     assert(description is not None)
-    icon = weather.get("icon")
-    assert(icon is not None)
+    description = str(description)
+    name = str(name)
+    icon = None
+    #assert(icon is not None)
     input: tuple = (cond_code,name,description,icon)
-    cursor.execute(INSERT_LOCATION, input)
+    cursor.execute(INSERT_WEATHER_TYPES, input)
 
     id = cursor.lastrowid
     assert(id is not None)
@@ -144,6 +155,7 @@ def get_temp_id(temp: dict | None, lid: int) -> int:
     print(tup)
     cursor.execute(INSERT_TEMP, tup)
 
+
     id = cursor.lastrowid
     assert(id is not None)
 
@@ -169,7 +181,7 @@ def get_wind_id(wind: dict | None, lid: int) -> int:
     assert(gust is not None)
     tup: tuple = (lid, speed, deg, gust)
     cursor = mydb.cursor()
-    cursor.execute(INSERT_WIND, tuple)
+    cursor.execute(INSERT_WIND, tup)
 
     id = cursor.lastrowid
     assert(id is not None)
@@ -220,6 +232,8 @@ def get_day_loc(dl: dict | None, lid: int, timezone:int) -> int:
     sunset = dl.get("sunset")
     assert(sunrise is not None)
     assert(sunset is not None)
+    sunrise = datetime.fromtimestamp(sunrise).strftime('%Y-%m-%d %H:%M:%S')
+    sunset = datetime.fromtimestamp(sunset).strftime('%Y-%m-%d %H:%M:%S')
 
     tup:tuple = (lid, sunrise, sunset, timezone)
 
