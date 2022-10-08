@@ -4,7 +4,7 @@ import json
 
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.connection_cext import CMySQLConnection
-from constant import INSERT_LOCATION
+from constant import INSERT_LOC_DATA, INSERT_LOCATION, INSERT_PRECIP, INSERT_TEMP, INSERT_WIND
 
 import mysql.connector as connector
 
@@ -86,7 +86,8 @@ def get_locations():
     print(result)
     return result
 
-def get_weather_type(weather: dict) -> int:
+def get_weather_type(weather: dict| None) -> int:
+    assert(weather is not None)
     id = -1
     cursor = mydb.cursor()
     cond_code = weather.get("id")
@@ -112,11 +113,131 @@ def get_weather_type(weather: dict) -> int:
         assert(fetched is not None)
         fetched = int(fetched[0])
         id = fetched
+    cursor.close()
     return id
 
+def get_temp_id(temp: dict | None, lid: int) -> int:
+    assert(temp is not None)
+    id = -1
+    cursor = mydb.cursor()
+    temperature = temp.get("temp")
+    assert(temperature is not None)
+    feels_like = temp.get("feels_like")
+    assert(feels_like is not None)
+    temp_min = temp.get("temp_min")
+    assert(temp_min is not None)
+    temp_max = temp.get("temp_max")
+    assert(temp_max is not None)
+    pressure = temp.get("pressure")
+    assert(pressure is not None)
+    humidity = temp.get("humidity")
+    assert(humidity is not None)
+    tup = (lid, temperature, feels_like, temp_min, temp_max, pressure, humidity)
+    print(tup)
+    cursor.execute(INSERT_TEMP, tup)
 
+    id = cursor.lastrowid
+    assert(id is not None)
+
+    if id == 0:
+        print("temp_id was zero")
+        q: list = [lid, temperature, feels_like, pressure, humidity]
+        cursor.execute("SELECT temperature_id FROM temperature_data WHERE location_id = %s AND" 
+                       " temp = %s AND feels_like = %s AND pressure = %s AND humidity = %s LIMIT 1", q)
+        fetched = cursor.fetchone()
+        assert(fetched is not None)
+        fetched=int(fetched[0])
+        id = fetched
+    cursor.close()
+    return id
+
+def get_wind_id(wind: dict | None, lid: int) -> int:
+    assert(wind is not None)
+    speed = wind.get("speed")
+    deg = wind.get("deg")
+    gust = wind.get("gust")
+    assert(speed is not None)
+    assert(deg is not None)
+    assert(gust is not None)
+    tup: tuple = (lid, speed, deg, gust)
+    cursor = mydb.cursor()
+    cursor.execute(INSERT_WIND, tuple)
+
+    id = cursor.lastrowid
+    assert(id is not None)
+
+    if id == 0:
+        print("wind_id was zero")
+        cursor.execute("SELECT temperature_id FROM temperature_data WHERE location_id = %s speed = %s"
+                       "AND deg = %s AND gust = %s LIMIT 1", tup)
+        fetched = cursor.fetchone()
+        assert(fetched is not None)
+        fetched=int(fetched[0])
+        id = fetched
+    cursor.close()
+    return id
+
+def get_precipitation_id(precip: dict | None, lid: int, snow:bool) -> int:
+    id = -1
+    assert(precip is not None)
+    one_hour = precip.get("1h")
+    three_hour = precip.get("3h")
+    assert(one_hour is not None)
+    assert(three_hour is not None)
+
+    tup = (lid, one_hour, three_hour, snow)
+
+    cursor = mydb.cursor()
+
+    cursor.execute(INSERT_PRECIP, tup)
+    id = cursor.lastrowid
+    assert(id is not None)
+
+    if id == 0:
+        print("precip_id was 0")
+        cursor.execute("select precipitation_id from precipitation_data where location_id = %s"
+                       " and one_hour = %s and three_hour = %s and is_snow = %s", tup)
+        fetched = cursor.fetchone()
+        assert(fetched is not None)
+        fetched=int(fetched[0])
+        id = fetched
+    cursor.close()
+    return id
+
+def get_day_loc(dl: dict | None, lid: int, timezone:int) -> int:
+    assert(dl is not None)
+    id = -1
+
+    sunrise = dl.get("sunrise")
+    sunset = dl.get("sunset")
+    assert(sunrise is not None)
+    assert(sunset is not None)
+
+    tup:tuple = (lid, sunrise, sunset, timezone)
+
+    cursor = mydb.cursor()
+    cursor.execute(INSERT_LOC_DATA, tup)
+
+    id = cursor.lastrowid
+    assert(id is not None)
+
+    if id == 0:
+        print("data id was 0")
+        cursor.execute("select day_data_id from day_data where location_id = %s and sunrise = %s"
+                       " and sunset = %s and timezone = %s LIMIT 1", tup)
+        fetched = cursor.fetchone()
+        assert(fetched is not None)
+        fetched = int(fetched[0])
+        id = fetched
+            
+    cursor.close()
+    return id
 
     
+    
+
+def commit():
+    mydb.commit()
     
 
 def init():
