@@ -32,9 +32,14 @@ INSERT_PRECIP = ("INSERT INTO precipitation_data(location_id, one_hour, three_ho
                    " as temp where not EXISTS (select precipitation_id from precipitation_data where location_id" 
                    " = temp.location_id AND one_hour = temp.one_hour AND three_hour = temp.three_hour"
                    " and is_snow = temp.is_snow) limit 1;")
+
 INSERT_LOC_DATA = ("INSERT INTO day_data(location_id, sunrise, sunset, timezone)" 
                    "select * from (select %s as location_id, %s as sunrise, %s as sunset, %s as timezone)"
                    " as temp where not EXISTS (select day_data_id from day_data where location_id" 
                    " = temp.location_id and sunrise = temp.sunrise and"
                    " sunset = temp.sunset and timezone = temp.timezone) limit 1;")
 
+INSERT_WEATHER = ("INSERT INTO Weather_data(condition_code, name, desc, icon)" 
+                   "select * from (select %s as condition_code, %s as name, %s as desc, %s as icon)"
+                   " as temp where not EXISTS (select condition_code from Weather_types where condition_code" 
+                   " = temp.condition_code) limit 1;")

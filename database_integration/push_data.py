@@ -76,15 +76,23 @@ def push_location(location_name:str, country_code:str, state_code:str, lon:float
     return id
 
 def get_locations():
+    global mydb
     cursor = mydb.cursor()
 
     cursor.execute("SELECT * FROM Locations")
     result = cursor.fetchall()
     assert(result is not None)
+    print(result)
+
+    locations: list[Location] = []
+
+    for l in result:
+        locations.append(loc_to_datac(l))
 
     cursor.close()
-    print(result)
-    return result
+    print(locations)
+    return locations
+
 
 def get_weather_type(weather: dict| None) -> int:
     assert(weather is not None)

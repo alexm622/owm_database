@@ -1,7 +1,9 @@
 import argparse
+import json
 
 import api_integration.loc_to_weather as ltw
 import api_integration.get_loc_data as gld
+from database_integration.handler import json_to_weather
 
 import database_integration.push_data as pd
 
@@ -20,10 +22,17 @@ def run():
     ltw.loc_to_weather(args)
 
 def db_test():
-    
+    f = open("api_integration/data/October-02-17.json")
+    aw = ""
+    for l in f:
+        aw += l
+    print(aw)
+    aw = json.loads(aw)
+    print(aw)
+    json_to_weather(aw)
 
 if __name__ == "__main__":
-    #run()
+    pd.init()
     db_test()
-else:
-    print("not main")
+    
+
