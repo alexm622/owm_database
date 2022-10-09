@@ -50,7 +50,6 @@ def connect():
     assert(mydb is not None)
     print(mydb)
 
-#TODO push all the gathered weather data
 def push(weather: Weather):
     cursor = mydb.cursor()
     cursor.execute(INSERT_WEATHER, weather.tup)
@@ -253,10 +252,7 @@ def get_day_loc(dl: dict | None, lid: int, timezone:int) -> int:
         id = fetched
             
     cursor.close()
-    return id
-
-    
-    
+    return id    
 
 def commit():
     mydb.commit()

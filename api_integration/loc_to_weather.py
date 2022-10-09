@@ -4,9 +4,9 @@ import requests
 import time
 import os
 import json
-from argparse import ArgumentParser, Namespace
+from argparse import Namespace
 
-import general_utils as gu
+from general_utils import read_secrets
 
 data_file = "loc_data.csv"
 
@@ -66,12 +66,12 @@ def write_json_out(data: dict):
         if os.path.exists("data/" + filename):
             os.remove("data/" + filename)
     f = open("data/" + filename, "w")
-    f.write(str('data').replace("'","\""))
+    f.write(str(data).replace("'","\""))
     
 def validate_file(file:str)-> bool:
     return True
 
-    f.write(str(data).replace("'","\""))
+
 def loc_to_weather(args:Namespace=argparse.ArgumentParser().parse_args()):
     if len(vars(args)) > 0:
         if args.output_override != "":
@@ -90,7 +90,7 @@ def loc_to_weather(args:Namespace=argparse.ArgumentParser().parse_args()):
 
     locs = list_to_dict(load_locdata())
 
-    secrets = gu.read_secrets()
+    secrets = read_secrets()
 
     aw = get_all_weather(locs, secrets)
 

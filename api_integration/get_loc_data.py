@@ -3,7 +3,7 @@ from argparse import Namespace
 import argparse
 import requests
 import json
-import general_utils as gu 
+from general_utils import read_secrets 
 
 locs_file: str = "places.csv"
 
@@ -43,7 +43,13 @@ def locations_to_coords(locations: list[str], secrets: dict[str,str]):
     mappings: dict[str, tuple[float,float]] = {}
     for loc in locations:
         coords = get_coords(loc, secrets)
-        mappings.update({loc.split(',')[0] + " " + loc.split(',')[1]: coords})
+        print(loc)
+        statecode = ""
+        print("count: ", str(loc.count(",")))
+        if loc.count(",") == 2:
+            statecode = " " + loc.split(",")[2]
+        locname:str = loc.split(',')[0] + " " + loc.split(',')[1] + statecode
+        mappings.update({locname: coords})
         
     return mappings
 
@@ -57,13 +63,15 @@ def load_locs():
             continue
         s = s.strip("\n").strip(",") 
         locs.append(s)
+    print("locs: ", locs)
     return locs
+
 
 def write_geodata(data: dict[str, tuple[float,float]]) -> bool:
     f = open("loc_data.csv","w")
     f.write("location,lon,lat\n")
     for s in data.keys():
-        
+        print("s: ", s)
         csv_line = s
         tup  = data.get(s)
         lon:float
@@ -89,25 +97,17 @@ def locnames_to_data(args:Namespace=argparse.ArgumentParser().parse_args()) -> b
     if not (len(vars(args)) == 0):
         if not args.geocode:
             print('skipping geocoding')
-            return True
         if args.LOCS != "":
             if valid_file(args.LOCS):
                 global locs_file
                 locs_file = args.LOCS
             else:
                 print("invalid locs file")
-                print("using default (places.csv)")
-
-
-
-
-
-
-    
+                print("using default (places.csv)")    
 
     locations: list[str] = load_locs()
 
-    secrets = gu.read_secrets()
+    secrets = read_secrets()
 
     if secrets.get("owm") == "none":
         print("api key not properly defined")
