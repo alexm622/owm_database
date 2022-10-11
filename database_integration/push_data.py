@@ -54,6 +54,17 @@ def push(weather: Weather):
     cursor.execute(INSERT_WEATHER, weather.tup)
     id = cursor.lastrowid
     assert(id is not None)
+    if id == 0:
+        print("weather was 0")
+        tup: tuple = (weather.location_id, datetime.fromtimestamp(weather.recorded_date).strftime('%Y-%m-%d %H:%M:%S'))
+        cursor.execute("select unique_id from Weather_data where location_id=%s and DATE(recorded_date) = DATE(%s)", tup)
+        fetched = cursor.fetchone()
+        assert(fetched is not None)
+        fetched = int(fetched[0])
+        id = fetched
+        print("weather found at :",id)
+        cursor.close()
+        return
     print("Weather: (", weather, ") inserted at ", id)
     cursor.close()
     commit()
@@ -129,7 +140,7 @@ def get_weather_type(weather: dict| None) -> int:
         id = fetched
     cursor.close()
     return id
-
+#TODO this also pushes duplicates, but only once?
 def get_temp_id(temp: dict | None, lid: int) -> int:
     assert(temp is not None)
     id = -1
@@ -166,25 +177,29 @@ def get_temp_id(temp: dict | None, lid: int) -> int:
     cursor.close()
     return id
 
+#TODO this still pushes duplicate items
 def get_wind_id(wind: dict | None, lid: int) -> int:
     print(wind)
     assert(wind is not None)
-    speed = wind.get("speed")
-    deg = wind.get("deg")
-    gust = wind.get("gust")
+    speed:float | None = wind.get("speed")
+    deg:float | None = wind.get("deg")
+    gust:float | None = wind.get("gust")
     assert(speed is not None)
     assert(deg is not None)
+    if gust is None:
+        gust = 0.0
+    assert(gust is not None)
     tup: tuple = (lid, speed, deg, gust)
     cursor = mydb.cursor()
     cursor.execute(INSERT_WIND, tup)
-
+    tup = (lid, speed, deg)
     id = cursor.lastrowid
     assert(id is not None)
 
     if id == 0:
-        print("wind_id was zero")
-        cursor.execute("SELECT temperature_id FROM temperature_data WHERE location_id = %s speed = %s"
-                       "AND deg = %s AND gust = %s LIMIT 1", tup)
+        print("wind_id was zero") 
+        cursor.execute("SELECT wind_id FROM wind_data WHERE location_id = %s AND speed like %s"
+                       " AND degrees LIKE %s", tup)
         fetched = cursor.fetchone()
         assert(fetched is not None)
         fetched=int(fetched[0])
@@ -240,8 +255,8 @@ def get_day_loc(dl: dict | None, lid: int, timezone:int) -> int:
 
     if id == 0:
         print("data id was 0")
-        cursor.execute("select day_data_id from day_data where location_id = %s and sunrise = %s"
-                       " and sunset = %s and timezone = %s LIMIT 1", tup)
+        cursor.execute("select day_data_id from day_data where location_id = %s and DATE(sunrise) = DATE(%s)"
+                       " and DATE(sunset) = DATE(%s) and timezone = %s LIMIT 1", tup)
         fetched = cursor.fetchone()
         assert(fetched is not None)
         fetched = int(fetched[0])
