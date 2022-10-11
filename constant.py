@@ -11,23 +11,20 @@ INSERT_WEATHER_TYPES = ("INSERT INTO Weather_types(condition_code, name, descrip
                    " as temp where not EXISTS (select condition_code from Weather_types where condition_code" 
                    " = temp.condition_code) limit 1;")
 
-INSERT_TEMP = ("insert into temperature_data (location_id, temperature, feels_like, temp_min, temp_max, pressure, humidity)" 
+INSERT_TEMP = ("insert into temperature_data (location_id, temperature, feels_like, temp_min, temp_max, pressure, humidity, recorded_date)" 
                " select * from (select %s as location_id, %s as temperature, %s as feels_like,%s as temp_min, %s as temp_max," 
-               "%s as pressure,%s as humidity) as temp where not exists (select temperature_id from temperature_data where" 
-               " location_id = temp.location_id and temp_min like temp.temp_min and temperature like temp.temperature "
-               "and humidity like temp.humidity and pressure = temp.pressure) limit 1")
+               "%s as pressure,%s as humidity, %s as recorded_date) as temp where not exists (select temperature_id from temperature_data where" 
+               " location_id = temp.location_id AND DATE(recorded_date) = DATE(temp.recorded_date)) limit 1")
 
-INSERT_WIND = ("INSERT INTO wind_data(location_id, speed, degrees, gust)" 
-                   "SELECT * from (SELECT %s AS location_id, %s AS speed, %s as degrees, %s AS gust)"
+INSERT_WIND = ("INSERT INTO wind_data(location_id, speed, degrees, gust, recorded_date)" 
+                   "SELECT * from (SELECT %s AS location_id, %s AS speed, %s as degrees, %s AS gust, %s as recorded_date)"
                    " AS temp WHERE NOT EXISTS (select wind_id FROM wind_data WHERE "
-                   " location_id = temp.location_id AND speed like temp.speed AND degrees like temp.degrees" 
-                   " AND gust like temp.gust) LIMIT 1;")
+                   " location_id = temp.location_id AND DATE(temp.recorded_date) = DATE(recorded_date)) LIMIT 1;")
 
-INSERT_PRECIP = ("INSERT INTO precipitation_data(location_id, one_hour, three_hour, is_snow)" 
-                   "select * from (select %s as location_id, %s as one_hour, %s three_hour, %s as is_snow)"
+INSERT_PRECIP = ("INSERT INTO precipitation_data(location_id, one_hour, three_hour, is_snow, recorded_date)" 
+                   "select * from (select %s as location_id, %s as one_hour, %s three_hour, %s as is_snow, %s as recorded_date)"
                    " as temp where not EXISTS (select precipitation_id from precipitation_data where location_id" 
-                   " = temp.location_id AND one_hour like temp.one_hour AND three_hour like temp.three_hour"
-                   " and is_snow = temp.is_snow) limit 1;")
+                   " = temp.location_id AND DATE(recorded_date) = DATE(temp.recorded_date)) limit 1;")
 
 INSERT_LOC_DATA = ("INSERT INTO day_data(location_id, sunrise, sunset, timezone)" 
                    "select * from (select %s as location_id, %s as sunrise, %s as sunset, %s as timezone)"
@@ -35,9 +32,9 @@ INSERT_LOC_DATA = ("INSERT INTO day_data(location_id, sunrise, sunset, timezone)
                    " = temp.location_id and DATE(sunrise) = DATE(temp.sunrise) and"
                    " DATE(sunset) = DATE(temp.sunset) and timezone = temp.timezone) limit 1;")
 
-INSERT_WEATHER = ("INSERT INTO Weather_data(location_id, recorded_date, weather_type, temperature_id, precipitation_id"
+INSERT_WEATHER = ("INSERT INTO weather_data(location_id, recorded_date, weather_type, temperature_id, precipitation_id"
                   ", wind_id, day_loc_id, clouds_percent, visibility) SELECT * from (SELECT %s as location_id,"
                   " %s as recorded_date, %s as weather_type, %s as temperature_id, %s as precipitation_id, %s as wind_id,"
                   " %s as day_loc_id, %s as clouds_percent, %s as visibility) as temp where not exists (select"
-                  " unique_id from Weather_data where location_id=temp.location_id and DATE(recorded_date) = DATE(temp.recorded_date))"
+                  " unique_id from weather_data where location_id=temp.location_id and DATE(recorded_date) = DATE(temp.recorded_date))"
                   " limit 1;")

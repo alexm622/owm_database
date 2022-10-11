@@ -47,9 +47,7 @@ def locations_to_coords(locations: list[str], secrets: dict[str,str]):
     mappings: dict[str, tuple[float,float]] = {}
     for loc in locations:
         coords = get_coords(loc, secrets)
-        print(loc)
         statecode = ""
-        print("count: ", str(loc.count(",")))
         if loc.count(",") == 2:
             statecode = " " + loc.split(",")[2]
         locname:str = loc.split(',')[0] + " " + loc.split(',')[1] + statecode
@@ -67,7 +65,6 @@ def load_locs():
             continue
         s = s.strip("\n").strip(",") 
         locs.append(s)
-    print("locs: ", locs)
     return locs
 
 
@@ -75,7 +72,6 @@ def write_geodata(data: dict[str, tuple[float,float]]) -> bool:
     f = open("loc_data.csv","w")
     f.write("location,lon,lat\n")
     for s in data.keys():
-        print("s: ", s)
         csv_line = s
         tup  = data.get(s)
         lon:float
@@ -87,7 +83,6 @@ def write_geodata(data: dict[str, tuple[float,float]]) -> bool:
             lat = tup[1]
             lon = tup[0]
         csv_line += "," + str(lon) + "," + str(lat)
-        print(csv_line)
         f.write(csv_line + "\n")
 
 
@@ -102,7 +97,6 @@ def push_locations():
     f.readline()
     for l in f:
         l = l.strip()
-        spaces = l.count(" ")
         name = ""
         name_a = l.split(",")[0].strip().split(" ")
         is_us = True if name_a[-2] == "US" else False
@@ -122,7 +116,7 @@ def push_locations():
         lon = float(l.split(",")[1])
         lat = float(l.split(",")[2])
 
-        id = pd.push_location(name, country_code, state_code, lon, lat)
+        pd.push_location(name, country_code, state_code, lon, lat)
 
 def locnames_to_data(args:Namespace|None=None) -> bool:
     global skip_geocode

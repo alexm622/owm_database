@@ -18,8 +18,8 @@ parser: ArgumentParser
 def run():
     global args
     if args.push:
+        print("pushing weather data to database")
         data = os.listdir("data")
-        print("contents:", data)
         for file in data:
             path = "data/" + file
             f = open(path)
@@ -28,24 +28,16 @@ def run():
                 aw += l
             aw = json.loads(aw)
             json_to_weather(aw)
+        print("Done!")
     else:
+        print("logging current weather")
         locnames_to_data(args)
         loc_to_weather(args)
+        print("done")
     
-
-def db_test():
-    f = open("api_integration/data/October-02-17.json")
-    aw = ""
-    for l in f:
-        aw += l
-    print(aw)
-    aw = json.loads(aw)
-    print(aw)
-    json_to_weather(aw)
 
 def init():
     global args, parser
-    print("initializing")
     parser = argparse.ArgumentParser()
     add_args(parser)
 
