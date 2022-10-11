@@ -1,12 +1,16 @@
 #openweathermap python program
 from argparse import Namespace
-import argparse
 import requests
 import json
-from general_utils import read_secrets 
+from datac.location import Location
+
+from general_utils import read_secrets
+
+import database_integration.push_data as pd
+import api_integration.loc_to_weather as ltw
 
 locs_file: str = "places.csv"
-
+skip_geocode:bool = False
 # returns tuple[lon,lat]
 def get_coords(location: str, secrets: dict[str, str]) -> tuple[float, float]:
     #break into pieces, format is city_name,country_code,state_code
@@ -92,19 +96,53 @@ def write_geodata(data: dict[str, tuple[float,float]]) -> bool:
 def valid_file(file:str) -> bool:
     print("validating file")
     return False
+    
+def push_locations():
+    f = open("loc_data.csv", 'r')
+    f.readline()
+    for l in f:
+        l = l.strip()
+        spaces = l.count(" ")
+        name = ""
+        name_a = l.split(",")[0].strip().split(" ")
+        is_us = True if name_a[-2] == "US" else False
+        state_code = ""
+        country_code = ""
+        if is_us:
+            state_code = name_a[-1]
+            country_code = name_a[-2]
+            name_a = name_a[:-2]
+        else:
+            country_code = name_a[-1]
+            name_a = name_a[:-1]
+
+        for s in name_a:
+            name += s + " "
+        name.strip()
+        lon = float(l.split(",")[1])
+        lat = float(l.split(",")[2])
+
+        id = pd.push_location(name, country_code, state_code, lon, lat)
 
 def locnames_to_data(args:Namespace|None=None) -> bool:
+    global skip_geocode
     if args != None and not (len(vars(args)) == 0):
         assert(args is not None)
         if not args.geocode:
             print('skipping geocoding')
-        if args.LOCS != "":
-            if valid_file(args.LOCS):
+            skip_geocode = True
+        if args.push_loc:
+            print("pushing locations")
+            push_locations()
+            return True
+
+        if args.locs != "":
+            if valid_file(args.locs):
                 global locs_file
                 locs_file = args.LOCS
             else:
                 print("invalid locs file")
-                print("using default (places.csv)")    
+                print("using default (places.csv)")   
 
     locations: list[str] = load_locs()
 

@@ -29,7 +29,6 @@ def load_config():
     for s in f:
         f_conts += s
     config = json.loads(f_conts)
-    print(config)
     connection_url = config.get("url")
     connection_uname = config.get("uname")
     connection_passwd = config.get("passwd") # eventually I want to replace this with secrets.csv
@@ -70,15 +69,12 @@ def push_location(location_name:str, country_code:str, state_code:str, lon:float
     id:int = cursor.lastrowid
      
     if id == 0:
-        print("id was zero")
         q:list[str] = [(location_name)]
         cursor.execute("SELECT location_id from Locations where location_name = %s LIMIT 1",q)
         fetched = cursor.fetchone()
         assert(fetched is not None)
         fetched = int(fetched[0])
         id = fetched
-
-    print("got id of: " + str(id))
     cursor.close()
 
     return id
@@ -171,13 +167,13 @@ def get_temp_id(temp: dict | None, lid: int) -> int:
     return id
 
 def get_wind_id(wind: dict | None, lid: int) -> int:
+    print(wind)
     assert(wind is not None)
     speed = wind.get("speed")
     deg = wind.get("deg")
     gust = wind.get("gust")
     assert(speed is not None)
     assert(deg is not None)
-    assert(gust is not None)
     tup: tuple = (lid, speed, deg, gust)
     cursor = mydb.cursor()
     cursor.execute(INSERT_WIND, tup)

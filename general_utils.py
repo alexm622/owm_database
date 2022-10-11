@@ -24,7 +24,8 @@ def add_args(parser: ArgumentParser):
     parser.add_argument('-p', action='store_true', default=False, dest='push',help="push data to database")
     parser.add_argument('-po', action='store_true', default=False, dest='only_push',help="push current data to database",)
     parser.add_argument('-ng', action='store_true', default=False, dest='no_get',help="do everything except the final get request")
-
+    parser.add_argument('-pl', action='store_true', default=False, dest='push_loc', help="push locations to the database from places.csv")
+    parser.add_argument('-u', action='store_true', default=False, dest='use_db', help="use the locations stored in the database")
 
 
     

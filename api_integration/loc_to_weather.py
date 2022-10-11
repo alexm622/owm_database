@@ -96,6 +96,8 @@ def loc_to_weather(args:Namespace|None=None):
     aw = get_all_weather(locs, secrets)
 
     write_json_out(aw)
+    #push data
+    
 
 
 

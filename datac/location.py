@@ -18,4 +18,4 @@ class Location:
         self.state_code = state_code
         self.lon = lon
         self.lat = lat
-        self.matchme = (location_name + " " + country_code).strip()
+        self.matchme = (location_name + country_code).strip() + ((" " + state_code) if state_code != "" else "")
