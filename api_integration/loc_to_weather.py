@@ -4,7 +4,7 @@ import requests
 import time
 import os
 import json
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 
 from general_utils import read_secrets
 
@@ -72,8 +72,9 @@ def validate_file(file:str)-> bool:
     return True
 
 
-def loc_to_weather(args:Namespace=argparse.ArgumentParser().parse_args()):
-    if len(vars(args)) > 0:
+def loc_to_weather(args:Namespace|None=None):
+    if args != None and len(vars(args)) > 0:
+        assert(args is not None)
         if args.output_override != "":
             #override the output
             print("new output")

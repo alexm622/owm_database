@@ -93,8 +93,9 @@ def valid_file(file:str) -> bool:
     print("validating file")
     return False
 
-def locnames_to_data(args:Namespace=argparse.ArgumentParser().parse_args()) -> bool:
-    if not (len(vars(args)) == 0):
+def locnames_to_data(args:Namespace|None=None) -> bool:
+    if args != None and not (len(vars(args)) == 0):
+        assert(args is not None)
         if not args.geocode:
             print('skipping geocoding')
         if args.LOCS != "":
