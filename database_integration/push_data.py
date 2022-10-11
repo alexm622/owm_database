@@ -158,7 +158,7 @@ def get_temp_id(temp: dict | None, lid: int) -> int:
         print("temp_id was zero")
         q: list = [lid, temperature, feels_like, pressure, humidity]
         cursor.execute("SELECT temperature_id FROM temperature_data WHERE location_id = %s AND" 
-                       " temp = %s AND feels_like = %s AND pressure = %s AND humidity = %s LIMIT 1", q)
+                       " temperature like %s AND feels_like like %s AND pressure like %s AND humidity like %s LIMIT 1", q)
         fetched = cursor.fetchone()
         assert(fetched is not None)
         fetched=int(fetched[0])
