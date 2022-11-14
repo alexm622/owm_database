@@ -3,11 +3,12 @@
 from datetime import datetime
 import json
 
+import mysql.connector as connector
+
 from mysql.connector.connection import MySQLConnection
-from mysql.connector.connection_cext import CMySQLConnection
 from constant import INSERT_LOC_DATA, INSERT_LOCATION, INSERT_PRECIP, INSERT_TEMP, INSERT_WEATHER, INSERT_WEATHER_TYPES, INSERT_WIND
 
-import mysql.connector as connector
+
 
 from datac.location import Location
 from datac.mapper import loc_to_datac
@@ -19,7 +20,7 @@ connection_passwd = ""
 connection_config = "connection_conf.json"
 
 #database connection
-mydb: MySQLConnection | CMySQLConnection
+mydb :MySQLConnection
 
 #load the config file
 def load_config():
@@ -35,14 +36,16 @@ def load_config():
     if connection_passwd == None or connection_uname == None or connection_url == None:
         print("invalid sql config")
         exit(1)
-        
 
-    
+
+
 
 #connect to the database
 def connect():
     global mydb, connection_url, connection_uname, connection_passwd
-    mydb = connector.connect(host=connection_url, user=connection_uname, password=connection_passwd, database="weather")
+    mydb_tmp = connector.connect(host=connection_url, user=connection_uname, password=connection_passwd, database="weather")
+    assert(mydb_tmp is MySQLConnection)
+    mydb = mydb_tmp
     if mydb == None:
         print("bad sql config")
         exit(0)
@@ -74,7 +77,7 @@ def push_location(location_name:str, country_code:str, state_code:str, lon:float
     mydb.commit()
     assert(cursor.lastrowid is not None)
     id:int = cursor.lastrowid
-     
+
     if id == 0:
         q:list[str] = [(location_name)]
         cursor.execute("SELECT location_id from Locations where location_name = %s LIMIT 1",q)
@@ -184,7 +187,7 @@ def get_wind_id(wind: dict | None, lid: int, date: int) -> int:
     tup = (lid,  datetime.fromtimestamp(date).strftime('%Y-%m-%d %H:%M:%S'))
     id = cursor.lastrowid
     assert(id is not None)
-    
+
 
     if id == 0:
         cursor.execute("SELECT wind_id FROM wind_data WHERE location_id = %s AND DATE(recorded_date) = DATE(%s)", tup)
@@ -248,13 +251,13 @@ def get_day_loc(dl: dict | None, lid: int, timezone:int) -> int:
         assert(fetched is not None)
         fetched = int(fetched[0])
         id = fetched
-            
+
     cursor.close()
-    return id    
+    return id
 
 def commit():
     mydb.commit()
-    
+
 
 def init():
     load_config()
