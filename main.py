@@ -45,8 +45,10 @@ def init():
     add_args(parser)
 
     args = parser.parse_args()
-
-    # pd.init()
+    try:
+        pd.init()
+    except:
+        print("WARNING! no database functionality")
 
 
 def init_locations():
