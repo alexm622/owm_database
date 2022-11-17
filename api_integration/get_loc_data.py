@@ -31,7 +31,10 @@ def get_coords(location: str, secrets: dict[str, str]) -> tuple[float, float]:
     response1 = requests.get(request_geocode)
 
     geocoding: dict = json.loads(response1.text[1: -1])
-    geocoding.pop("local_names")
+    try:
+        geocoding.pop("local_names")
+    except:
+        print("no local names")
 
     lat: str | None = str(geocoding.get("lat"))
     lon: str | None = str(geocoding.get("lon"))

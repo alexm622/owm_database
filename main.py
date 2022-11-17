@@ -43,7 +43,7 @@ def init():
 
     args = parser.parse_args()
 
-    pd.init()
+    #pd.init()
 
     
     
