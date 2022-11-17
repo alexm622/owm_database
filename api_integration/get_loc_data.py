@@ -102,9 +102,30 @@ def write_geodata(data: dict[str, tuple[float, float]]) -> bool:
     return False
 
 
+def valid_line(line: str) -> bool:
+    try:
+        line.split(",")[0]
+        lon = line.split(",")[1]
+        lat = line.split(",")[2]
+        lon = float(lon)
+        lat = float(lat)
+        # validation passed
+        return True
+    except:
+        return False
+
+
 def valid_file(file: str) -> bool:
     print("validating file")
-    return False
+    f = open(file)
+    f.readline()
+    for line in f:
+        line = str(line)
+        # do something
+        if not valid_line(line):
+            return False
+
+    return True
 
 
 def push_locations():
