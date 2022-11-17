@@ -13,7 +13,8 @@ import database_integration.push_data as pd
 from general_utils import add_args
 
 args: Namespace
-parser: ArgumentParser    
+parser: ArgumentParser
+
 
 def run():
     global args
@@ -32,9 +33,11 @@ def run():
     else:
         print("logging current weather")
         locnames_to_data(args)
+        if args.no_get:
+            return 0
         loc_to_weather(args)
         print("done")
-    
+
 
 def init():
     global args, parser
@@ -43,14 +46,13 @@ def init():
 
     args = parser.parse_args()
 
-    #pd.init()
+    # pd.init()
 
-    
-    
 
 def init_locations():
     global args
     locnames_to_data(args)
+
 
 if __name__ == "__main__":
     init()
