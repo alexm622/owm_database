@@ -162,12 +162,13 @@ def locnames_to_data(args: Namespace | None = None) -> bool:
         if not args.geocode:
             print("skipping geocoding")
             skip_geocode = True
+            return True
         if args.push_loc:
             print("pushing locations")
             push_locations()
             return True
 
-        if args.locs != "":
+        if args.locs != None:
             if valid_file(args.locs):
                 global locs_file
                 locs_file = args.LOCS
